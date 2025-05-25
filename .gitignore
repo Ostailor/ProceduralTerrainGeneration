@@ -1,0 +1,22 @@
+# Build artifacts
+build/
+*.o
+*.out
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE specific files
+.vscode/
+*.suo
+*.user
+*.sln
+*.vcxproj
+*.xcodeproj/
+
+# macOS specific files
+.DS_Store
+
+# Logs
+*.log
