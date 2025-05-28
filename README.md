@@ -1,8 +1,8 @@
-# OpenGLTerrain
+# ProceduralTerrainGeneration
 
 ## Project Description
 
-OpenGLTerrain is a C++ project that demonstrates real-time 3D terrain rendering using OpenGL. It features dynamic terrain generation using Perlin noise, texture mapping for different terrain types (grass, rock, snow) based on height, a skybox, and a camera system for navigation. The terrain is managed in chunks, and frustum culling is implemented to optimize rendering.
+ProceduralTerrainGeneration is a C++ project that demonstrates real-time 3D terrain rendering using OpenGL. It features dynamic terrain generation using Perlin noise, texture mapping for different terrain types (grass, rock, snow) based on height, a skybox, and a camera system for navigation. The terrain is managed in chunks, and frustum culling is implemented to optimize rendering.
 
 ## Core Features
 
