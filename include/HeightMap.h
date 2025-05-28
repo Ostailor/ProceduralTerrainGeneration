@@ -20,8 +20,10 @@ public:
     void smoothHeights(int iterations = 1, int kernelSize = 1);
 
     float getHeight(int x, int z) const;
+    void setHeight(int x, int z, float height); // <<< ADD THIS LINE (the declaration)
     int getWidth() const;
     int getDepth() const;
+    const std::vector<std::vector<float>>& getHeights() const;
 
 private:
     int width_;

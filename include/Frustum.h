@@ -2,7 +2,7 @@
 #define FRUSTUM_H
 
 #include <glm/glm.hpp>
-#include "Mesh.h" // For AABB struct
+#include "Mesh.h" // <<< This line is important to define BoundingBox
 
 // Defines a plane equation: normal.x*x + normal.y*y + normal.z*z + distance = 0
 struct Plane {
@@ -42,7 +42,11 @@ public:
 
     Frustum() = default;
     void update(const glm::mat4& viewProjectionMatrix);
-    bool isAABBVisible(const AABB& aabb) const;
+    bool isAABBVisible(const BoundingBox& bbox) const; // Name can be isAABBVisible, but type is BoundingBox
+
+private:
+    // Plane planes[6]; // Or your plane storage
+    // ... (other private members) ...
 };
 
 #endif // FRUSTUM_H

@@ -3,21 +3,22 @@
 
 #include <vector>
 #include <glad/glad.h>
-#include "HeightMap.h"
-#include <glm/glm.hpp> // For glm::vec3
-#include <limits> // For std::numeric_limits
+#include <glm/glm.hpp> 
+#include <limits> 
+
+// Forward declare HeightMap if its full definition isn't needed in this header
+class HeightMap; 
 
 struct Vertex {
-    glm::vec3 Position;     // Using glm::vec3 for convenience
-    glm::vec3 Normal;       // Normal vector
-    glm::vec2 TexCoords;    // Texture Coordinates
+    glm::vec3 Position;     
+    glm::vec3 Normal;       
+    glm::vec2 TexCoords;    
 };
 
-struct AABB {
+struct BoundingBox { 
     glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
     glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
 
-    // Optional: A method to get the 8 corners of the AABB
     std::vector<glm::vec3> getCorners() const {
         return {
             glm::vec3(min.x, min.y, min.z), glm::vec3(max.x, min.y, min.z),
@@ -32,20 +33,23 @@ class Mesh {
 public:
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
-    unsigned int VAO;
-    AABB boundingBox; // Add AABB member
+    BoundingBox boundingBox; 
 
     Mesh();
-    ~Mesh();
+    ~Mesh(); // <<< ADD THIS LINE (declare the destructor)
 
-    void generateFromHeightMap(const HeightMap& heightMap, float horizontalScale = 1.0f, float verticalScale = 1.0f);
+    void generateFromHeightMap(const HeightMap& heightMap, float horizontalScale, float verticalScale);
     void setupMesh();
-    void draw() const;
+    void draw() const; 
+    void clearGPUData(); 
+
+    size_t getVerticesCount() const;
+    size_t getIndicesCount() const;
 
 private:
-    unsigned int VBO, EBO;
-    void calculateNormals(); // Helper function to calculate normals
-    void calculateBoundingBox(); // Helper to calculate AABB
+    unsigned int VAO, VBO, EBO;
+    void calculateNormals();
+    void calculateBoundingBox(); 
 };
 
 #endif // MESH_H

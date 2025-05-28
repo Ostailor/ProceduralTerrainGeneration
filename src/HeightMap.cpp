@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <algorithm> 
 #include <cmath> // For std::pow
+#include <iostream>  // For std::cerr (if using warning)
 
 HeightMap::HeightMap(int width, int depth) : width_(width), depth_(depth) {
     if (width <= 0 || depth <= 0) {
@@ -89,9 +90,28 @@ void HeightMap::smoothHeights(int iterations, int kernelSize) {
 
 float HeightMap::getHeight(int x, int z) const {
     if (x < 0 || x >= width_ || z < 0 || z >= depth_) {
-        throw std::out_of_range("HeightMap coordinates out of bounds.");
+        throw std::out_of_range("HeightMap coordinates out of bounds in getHeight.");
     }
     return heights_[x][z];
+}
+
+void HeightMap::setHeight(int x, int z, float height) {
+    if (x < 0 || x >= width_ || z < 0 || z >= depth_) {
+        // Option 1: Throw an error (matches your getHeight)
+        // throw std::out_of_range("HeightMap coordinates out of bounds in setHeight.");
+
+        // Option 2: Log a warning and do nothing (safer during generation bugs)
+        std::cerr << "Warning: HeightMap::setHeight coordinates out of bounds (" 
+                  << x << ", " << z << "). Value not set." << std::endl;
+        return;
+    }
+    // Ensure internal vector structure is valid (it should be if constructor ran correctly)
+    if (static_cast<size_t>(x) >= heights_.size() || static_cast<size_t>(z) >= heights_[x].size()) {
+         std::cerr << "Warning: HeightMap internal structure not properly initialized for setHeight("
+                   << x << ", " << z << ")." << std::endl;
+        return;
+    }
+    heights_[x][z] = height;
 }
 
 int HeightMap::getWidth() const {
@@ -100,4 +120,8 @@ int HeightMap::getWidth() const {
 
 int HeightMap::getDepth() const {
     return depth_;
+}
+
+const std::vector<std::vector<float>>& HeightMap::getHeights() const {
+    return heights_;
 }

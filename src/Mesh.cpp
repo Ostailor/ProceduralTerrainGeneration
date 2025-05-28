@@ -1,4 +1,6 @@
 #include "Mesh.h"
+#include "HeightMap.h" // <<< ADD THIS LINE
+#include <glad/glad.h> // For OpenGL functions
 #include <iostream>
 #include <glm/geometric.hpp>
 #include <limits> // For std::numeric_limits
@@ -6,15 +8,14 @@
 Mesh::Mesh() : VAO(0), VBO(0), EBO(0) {}
 
 Mesh::~Mesh() {
-    if (VAO != 0) glDeleteVertexArrays(1, &VAO);
-    if (VBO != 0) glDeleteBuffers(1, &VBO);
-    if (EBO != 0) glDeleteBuffers(1, &EBO);
+    clearGPUData();
 }
 
 void Mesh::generateFromHeightMap(const HeightMap& heightMap, float horizontalScale, float verticalScale) {
     vertices.clear();
     indices.clear();
 
+    // Now the compiler will know what heightMap.getWidth(), .getDepth(), .getHeight() are
     int mapWidth = heightMap.getWidth();
     int mapDepth = heightMap.getDepth();
 
@@ -26,12 +27,12 @@ void Mesh::generateFromHeightMap(const HeightMap& heightMap, float horizontalSca
     for (int z_coord = 0; z_coord < mapDepth; ++z_coord) {
         for (int x_coord = 0; x_coord < mapWidth; ++x_coord) {
             Vertex vertex;
-            vertex.Position.x = static_cast<float>(x_coord) * horizontalScale - (mapWidth * horizontalScale / 2.0f);
+            vertex.Position.x = static_cast<float>(x_coord) * horizontalScale - (static_cast<float>(mapWidth) * horizontalScale / 2.0f);
             vertex.Position.y = heightMap.getHeight(x_coord, z_coord) * verticalScale;
-            vertex.Position.z = static_cast<float>(z_coord) * horizontalScale - (mapDepth * horizontalScale / 2.0f);
+            vertex.Position.z = static_cast<float>(z_coord) * horizontalScale - (static_cast<float>(mapDepth) * horizontalScale / 2.0f);
             
-            vertex.TexCoords.x = static_cast<float>(x_coord) / static_cast<float>(mapWidth - 1);
-            vertex.TexCoords.y = static_cast<float>(z_coord) / static_cast<float>(mapDepth - 1);
+            vertex.TexCoords.x = static_cast<float>(x_coord) / static_cast<float>(mapWidth > 1 ? mapWidth - 1 : 1); // Avoid division by zero
+            vertex.TexCoords.y = static_cast<float>(z_coord) / static_cast<float>(mapDepth > 1 ? mapDepth - 1 : 1); // Avoid division by zero
             
             vertex.Normal = glm::vec3(0.0f, 1.0f, 0.0f); 
             vertices.push_back(vertex);
@@ -123,10 +124,44 @@ void Mesh::setupMesh() {
 }
 
 void Mesh::draw() const {
-    if (VAO == 0 || indices.empty()) {
+    if (VAO == 0) {
+        // std::cerr << "Mesh::draw() called but VAO is not set up." << std::endl; // Optional debug
         return;
     }
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0); 
+    glBindVertexArray(0);
 }
+
+size_t Mesh::getVerticesCount() const {
+    return vertices.size();
+}
+
+size_t Mesh::getIndicesCount() const {
+    return indices.size();
+}
+
+void Mesh::clearGPUData() {
+    if (VAO != 0) {
+        glDeleteVertexArrays(1, &VAO);
+        VAO = 0; // Reset to 0 to indicate it's no longer valid
+    }
+    if (VBO != 0) {
+        glDeleteBuffers(1, &VBO);
+        VBO = 0;
+    }
+    if (EBO != 0) {
+        glDeleteBuffers(1, &EBO);
+        EBO = 0;
+    }
+    // Optionally clear CPU-side data if desired
+    // vertices.clear();
+    // vertices.shrink_to_fit();
+    // indices.clear();
+    // indices.shrink_to_fit();
+    // std::cout << "Mesh GPU data cleared." << std::endl; // Optional debug
+}
+
+// Ensure calculateNormals and calculateBoundingBox are implemented if generateFromHeightMap calls them.
+// void Mesh::calculateNormals() { /* ... your implementation ... */ }
+// void Mesh::calculateBoundingBox() { /* ... your implementation ... */ }

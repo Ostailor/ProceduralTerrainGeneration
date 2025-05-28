@@ -49,17 +49,17 @@ void Frustum::update(const glm::mat4& vpMatrix) {
 // A more accurate test (sphere vs frustum, or separating axis theorem for AABB) can be used.
 // For now, we use a simpler "point in frustum" style test for the AABB corners.
 // A better AABB test checks if the AABB is on the "negative" side of any plane.
-bool Frustum::isAABBVisible(const AABB& aabb) const {
+bool Frustum::isAABBVisible(const BoundingBox& bbox) const {
     // For each plane
     for (int i = 0; i < 6; ++i) {
         // Check if all 8 AABB corners are on the outside of this plane
         // If so, the AABB is outside the frustum
         // The "positive" or "p-vertex" is the corner furthest along the plane's normal
         // The "negative" or "n-vertex" is the corner furthest in the opposite direction of the plane's normal
-        glm::vec3 pVertex = aabb.min;
-        if (planes[i].normal.x >= 0) pVertex.x = aabb.max.x;
-        if (planes[i].normal.y >= 0) pVertex.y = aabb.max.y;
-        if (planes[i].normal.z >= 0) pVertex.z = aabb.max.z;
+        glm::vec3 pVertex = bbox.min;
+        if (planes[i].normal.x >= 0) pVertex.x = bbox.max.x;
+        if (planes[i].normal.y >= 0) pVertex.y = bbox.max.y;
+        if (planes[i].normal.z >= 0) pVertex.z = bbox.max.z;
 
         // If p-vertex is outside this plane (on the negative side), then the whole AABB is outside
         if (planes[i].getSignedDistanceToPoint(pVertex) < 0) {
